@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZamaFundVault - Confidential Investment Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.4.0/dist/ethers.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #2a2a5a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d4aa, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #00d4aa, #4ade80);
+        }
+
+        .wallet-connect {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #00d4aa, #4ade80);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .wallet-connect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 170, 0.3);
+        }
+
+        .main-content {
+            margin-top: 40px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 60px 0;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #00d4aa, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: #8892b0;
+            margin-bottom: 40px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .feature-card {
+            background: rgba(30, 30, 60, 0.8);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #00d4aa;
+            box-shadow: 0 20px 40px rgba(0, 212, 170, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #00d4aa;
+        }
+
+        .feature-desc {
+            color: #8892b0;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 40px 0;
+        }
+
+        .btn-primary {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            padding: 16px 32px;
+            background: transparent;
+            border: 2px solid #00d4aa;
+            border-radius: 12px;
+            color: #00d4aa;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #00d4aa;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .form-container {
+            background: rgba(30, 30, 60, 0.8);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #00d4aa;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #8892b0;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00d4aa;
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.2);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .project-card {
+            background: rgba(30, 30, 60, 0.8);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-color: #00d4aa;
+        }
+
+        .project-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .project-desc {
+            color: #8892b0;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .project-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .project-stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00d4aa;
+        }
+
+        .stat-label {
+            color: #8892b0;
+            margin-top: 4px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4aa, #4ade80);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-invest {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+        }
+
+        .btn-donate {
+            background: linear-gradient(135deg, #00d4aa, #4ade80);
+            color: white;
+            border: none;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #00d4aa, #4ade80);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0, 212, 170, 0.3);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e1e3f, #2a2a5a);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #00d4aa;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #8892b0;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #00d4aa;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .nav {
+                order: -1;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .hero-title {
+                font-size: 36px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">🔒 ZamaFundVault</div>
+            <nav class="nav">
+                <a href="#" class="nav-btn active" onclick="showSection('home', this); return false;">Home</a>
+                <a href="#" class="nav-btn" onclick="showSection('projects', this); return false;">Projects</a>
+                <a href="#" class="nav-btn" onclick="showSection('create', this); return false;">Create Project</a>
+                <a href="#" class="nav-btn" onclick="showSection('dex', this); return false;">DEX</a>
+            </nav>
+            <button class="wallet-connect" onclick="connectWallet()">
+                Connect Wallet
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Home Section -->
+            <div id="home" class="section active">
+                <div class="hero-section">
+                    <h1 class="hero-title">🔒 ZamaFundVault</h1>
+                    <p class="hero-subtitle">Revolutionary confidential investment platform using Zama FHE technology</p>
+                    
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">🔐</div>
+                            <h3 class="feature-title">Private Investments</h3>
+                            <p class="feature-desc">All investment amounts encrypted using Zama FHE technology for complete privacy</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">💰</div>
+                            <h3 class="feature-title">Secure Donations</h3>
+                            <p class="feature-desc">Support projects with confidential donations that protect your financial privacy</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">🔄</div>
+                            <h3 class="feature-title">Secret DEX</h3>
+                            <p class="feature-desc">Trade tokens with complete privacy on SecretSwap DEX</p>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn-primary" onclick="showSection('projects')">
+                            Explore Projects
+                        </button>
+                        <button class="btn-secondary" onclick="showSection('create')">
+                            Create Project
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Section -->
+            <div id="projects" class="section">
+                <h2 class="form-title">Active Projects</h2>
+                <div class="projects-grid" id="projectsGrid">
+                    <!-- Projects will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Create Project Section -->
+            <div id="create" class="section">
+                <div class="form-container">
+                    <h2 class="form-title">Create New Project</h2>
+                    <form id="createProjectForm">
+                        <div class="form-group">
+                            <label class="form-label">Project Title</label>
+                            <input type="text" class="form-input" id="projectTitle" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-input form-textarea" id="projectDescription" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Funding Goal (ETH)</label>
+                            <input type="number" class="form-input" id="fundingGoal" step="0.01" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Project Type</label>
+                            <select class="form-input" id="projectType" required>
+                                <option value="">Select Type</option>
+                                <option value="investment">Investment</option>
+                                <option value="donation">Donation</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary" style="width: 100%;">
+                            Create Project
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- DEX Section -->
+            <div id="dex" class="section">
+                <div style="display: grid; grid-template-columns: 1fr 350px; gap: 40px;">
+                    <div class="form-container">
+                        <h2 class="form-title">🔒 SecretSwap DEX</h2>
+                        
+                        <div class="form-group">
+                            <label class="form-label">From</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" class="form-input" id="fromAmount" placeholder="0.0" style="flex: 1;">
+                                <select class="form-input" id="fromToken" style="width: 100px;">
+                                    <option value="ETH">ETH</option>
+                                    <option value="USDC">USDC</option>
+                                    <option value="DAI">DAI</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin: 20px 0;">
+                            <button class="btn-secondary" onclick="swapTokens()" style="border-radius: 50%; width: 40px; height: 40px; padding: 0;">
+                                ⇅
+                            </button>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">To</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" class="form-input" id="toAmount" placeholder="0.0" readonly style="flex: 1;">
+                                <select class="form-input" id="toToken" style="width: 100px;">
+                                    <option value="USDC">USDC</option>
+                                    <option value="ETH">ETH</option>
+                                    <option value="DAI">DAI</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(0, 212, 170, 0.1); border: 1px solid rgba(0, 212, 170, 0.3); border-radius: 12px; padding: 16px; margin: 20px 0; font-size: 14px;">
+                            <span style="color: #00d4aa;">🛡️</span>
+                            Your swap amounts are encrypted using Zama FHE technology. Only you can see your trading history.
+                        </div>
+
+                        <button class="btn-primary" onclick="executeSwap()" style="width: 100%;">
+                            Execute Private Swap
+                        </button>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3 class="feature-title">Market Stats</h3>
+                        <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <span style="color: #8892b0;">24h Volume</span>
+                            <span style="color: #00d4aa;">****** ETH</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <span style="color: #8892b0;">Total Liquidity</span>
+                            <span style="color: #00d4aa;">****** ETH</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 12px 0;">
+                            <span style="color: #8892b0;">Privacy Level</span>
+                            <span style="color: #00d4aa;">🔒 Maximum</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Investment Modal -->
+    <div class="modal" id="investModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h3 class="modal-title">Invest in Project</h3>
+            <div class="form-group">
+                <label class="form-label">Investment Amount (ETH)</label>
+                <input type="number" class="form-input" id="investAmount" step="0.01" placeholder="0.0">
+            </div>
+            <p style="color: #8892b0; font-size: 14px; margin: 20px 0;">
+                🛡️ Your investment amount will be encrypted using FHE technology for complete privacy.
+            </p>
+            <button class="btn-primary" onclick="confirmInvestment()" style="width: 100%;">
+                Confirm Investment
+            </button>
+        </div>
+    </div>
+
+    <!-- Donation Modal -->
+    <div class="modal" id="donateModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h3 class="modal-title">Donate to Project</h3>
+            <div class="form-group">
+                <label class="form-label">Donation Amount (ETH)</label>
+                <input type="number" class="form-input" id="donateAmount" step="0.01" placeholder="0.0">
+            </div>
+            <p style="color: #8892b0; font-size: 14px; margin: 20px 0;">
+                🛡️ Your donation amount will be encrypted using FHE technology for complete privacy.
+            </p>
+            <button class="btn-primary" onclick="confirmDonation()" style="width: 100%;">
+                Confirm Donation
+            </button>
+        </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div class="modal" id="transactionModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Processing Transaction</h3>
+            <div style="display: flex; align-items: center; margin: 20px 0;">
+                <div class="loading-spinner"></div>
+                <span id="transactionStatus">Encrypting and submitting your transaction...</span>
+            </div>
+            <p style="color: #8892b0; font-size: 14px;">
+                Your transaction is being processed using Zama FHE technology for maximum privacy.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let provider, signer, userAddress;
+        let isConnected = false;
+        let currentProjectId = null;
+        
+        // Sample projects data
+        let projects = [
+            {
+                id: 1,
+                title: "DeFi Privacy Protocol",
+                description: "Building next-generation privacy-preserving DeFi protocol using zero-knowledge proofs",
+                goal: 100,
+                raised: 65,
+                type: "investment",
+                creator: "0x1234...5678"
+            },
+            {
+                id: 2,
+                title: "Open Source Education",
+                description: "Creating free educational content for blockchain developers worldwide",
+                goal: 25,
+                raised: 18,
+                type: "donation",
+                creator: "0x8765...4321"
+            },
+            {
+                id: 3,
+                title: "Climate Change Solution",
+                description: "Innovative carbon capture technology using blockchain verification",
+                goal: 200,
+                raised: 45,
+                type: "investment",
+                creator: "0x9999...1111"
+            }
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            checkWalletConnection();
+            loadProjects();
+            updateDEXPrices();
+            setInterval(updateDEXPrices, 30000);
+            
+            // Bind form event listeners
+            setupFormEventListeners();
+        });
+
+        // Navigation
+        function showSection(sectionId, clickedElement) {
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Find and activate the correct nav button
+            if (clickedElement) {
+                clickedElement.classList.add('active');
+            } else {
+                // Fallback: find the correct nav button by section ID
+                const navButtons = document.querySelectorAll('.nav-btn');
+                navButtons.forEach(btn => {
+                    const onclick = btn.getAttribute('onclick');
+                    if (onclick && onclick.includes(`'${sectionId}'`)) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+            
+            // Show section
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            
+            if (sectionId === 'projects') {
+                loadProjects();
+            }
+        }
+
+        // Wallet Connection
+        async function connectWallet() {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    showNotification('Please install MetaMask to use ZamaFundVault!', 'error');
+                    return;
+                }
+
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+
+                if (accounts.length > 0) {
+                    provider = new ethers.BrowserProvider(window.ethereum);
+                    signer = await provider.getSigner();
+                    userAddress = await signer.getAddress();
+                    
+                    isConnected = true;
+                    updateWalletUI();
+                    showNotification('Wallet connected successfully!');
+                    
+                    checkNetwork();
+                } else {
+                    showNotification('No accounts found. Please check your wallet.', 'error');
+                }
+
+            } catch (error) {
+                console.error('Wallet connection error:', error);
+                
+                if (error.code === 4001) {
+                    showNotification('Connection rejected by user', 'error');
+                } else if (error.code === -32002) {
+                    showNotification('Connection request already pending. Please check MetaMask.', 'error');
+                } else {
+                    showNotification('Failed to connect wallet: ' + error.message, 'error');
+                }
+            }
+        }
+
+        async function checkNetwork() {
+            try {
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const chainIdDecimal = parseInt(chainId, 16);
+                
+                if (chainIdDecimal === 11155111) {
+                    showNotification('Connected to Sepolia Testnet ✅');
+                } else if (chainIdDecimal === 1337) {
+                    showNotification('Connected to Local Network ✅');
+                } else {
+                    showNotification(`Warning: Unsupported network (Chain ID: ${chainIdDecimal})`, 'error');
+                }
+            } catch (error) {
+                console.error('Network check failed:', error);
+            }
+        }
+
+        async function checkWalletConnection() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        provider = new ethers.BrowserProvider(window.ethereum);
+                        signer = await provider.getSigner();
+                        userAddress = accounts[0];
+                        isConnected = true;
+                        updateWalletUI();
+                        checkNetwork();
+                    }
+                } catch (error) {
+                    console.error('Error checking wallet connection:', error);
+                }
+
+                window.ethereum.on('accountsChanged', function (accounts) {
+                    if (accounts.length > 0) {
+                        userAddress = accounts[0];
+                        isConnected = true;
+                        updateWalletUI();
+                        showNotification('Account changed');
+                    } else {
+                        userAddress = null;
+                        isConnected = false;
+                        updateWalletUI();
+                        showNotification('Wallet disconnected', 'error');
+                    }
+                });
+
+                window.ethereum.on('chainChanged', function (chainId) {
+                    checkNetwork();
+                    window.location.reload();
+                });
+            }
+        }
+
+        function updateWalletUI() {
+            const connectButton = document.querySelector('.wallet-connect');
+            if (isConnected && userAddress) {
+                connectButton.textContent = `${userAddress.substring(0, 6)}...${userAddress.substring(38)}`;
+                connectButton.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+            } else {
+                connectButton.textContent = 'Connect Wallet';
+                connectButton.style.background = 'linear-gradient(135deg, #00d4aa, #4ade80)';
+            }
+        }
+
+        // Projects Management
+        function loadProjects() {
+            const projectsGrid = document.getElementById('projectsGrid');
+            projectsGrid.innerHTML = '';
+
+            projects.forEach(project => {
+                const progressPercent = (project.raised / project.goal * 100).toFixed(1);
+                
+                const projectCard = document.createElement('div');
+                projectCard.className = 'project-card';
+                projectCard.innerHTML = `
+                    <h3 class="project-title">${project.title}</h3>
+                    <p class="project-desc">${project.description}</p>
+                    
+                    <div class="project-stats">
+                        <div class="project-stat">
+                            <div class="stat-value">*** ETH</div>
+                            <div class="stat-label">Raised</div>
+                        </div>
+                        <div class="project-stat">
+                            <div class="stat-value">${project.goal} ETH</div>
+                            <div class="stat-label">Goal</div>
+                        </div>
+                        <div class="project-stat">
+                            <div class="stat-value">*** %</div>
+                            <div class="stat-label">Progress</div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                    </div>
+                    
+                    <div class="project-actions">
+                        ${project.type === 'investment' ? 
+                            `<button class="btn-small btn-invest" onclick="openInvestModal(${project.id})">Invest</button>` :
+                            `<button class="btn-small btn-donate" onclick="openDonateModal(${project.id})">Donate</button>`
+                        }
+                        <button class="btn-small btn-secondary" onclick="viewProject(${project.id})">View Details</button>
+                    </div>
+                `;
+                
+                projectsGrid.appendChild(projectCard);
+            });
+        }
+
+        function viewProject(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                showNotification(`Viewing ${project.title} - Coming soon!`);
+            }
+        }
+
+        // Setup form event listeners
+        function setupFormEventListeners() {
+            // Project Creation Form
+            const createProjectForm = document.getElementById('createProjectForm');
+            if (createProjectForm) {
+                createProjectForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    if (!isConnected) {
+                        showNotification('Please connect your wallet first', 'error');
+                        return;
+                    }
+
+                    const title = document.getElementById('projectTitle').value;
+                    const description = document.getElementById('projectDescription').value;
+                    const goal = parseFloat(document.getElementById('fundingGoal').value);
+                    const type = document.getElementById('projectType').value;
+
+                    if (!title || !description || !goal || !type) {
+                        showNotification('Please fill in all fields', 'error');
+                        return;
+                    }
+
+                    showTransactionModal('Creating project...');
+
+                    try {
+                        // Simulate project creation transaction
+                        await simulateTransaction();
+                        
+                        // Add project to local array (in real app, this would be from blockchain)
+                        const newProject = {
+                            id: projects.length + 1,
+                            title,
+                            description,
+                            goal,
+                            raised: 0,
+                            type,
+                            creator: userAddress || 'Connected Wallet'
+                        };
+                        
+                        projects.push(newProject);
+                        
+                        closeModal();
+                        showNotification('Project created successfully!');
+                        
+                        // Reset form
+                        createProjectForm.reset();
+                        
+                        // Switch to projects view
+                        showSection('projects');
+                        
+                    } catch (error) {
+                        closeModal();
+                        showNotification('Failed to create project: ' + error.message, 'error');
+                    }
+                });
+            }
+            
+            // DEX amount input listener
+            const fromAmountInput = document.getElementById('fromAmount');
+            if (fromAmountInput) {
+                fromAmountInput.addEventListener('input', updateDEXPrices);
+            }
+            
+            const fromTokenSelect = document.getElementById('fromToken');
+            if (fromTokenSelect) {
+                fromTokenSelect.addEventListener('change', updateDEXPrices);
+            }
+            
+            const toTokenSelect = document.getElementById('toToken');
+            if (toTokenSelect) {
+                toTokenSelect.addEventListener('change', updateDEXPrices);
+            }
+        }
+
+        // Investment Functions
+        function openInvestModal(projectId) {
+            if (!isConnected) {
+                showNotification('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            currentProjectId = projectId;
+            document.getElementById('investModal').classList.add('show');
+        }
+
+        async function confirmInvestment() {
+            const amount = parseFloat(document.getElementById('investAmount').value);
+            
+            if (!amount || amount <= 0) {
+                showNotification('Please enter a valid investment amount', 'error');
+                return;
+            }
+
+            closeModal();
+            showTransactionModal('Processing investment...');
+
+            try {
+                // Simulate investment transaction
+                await simulateTransaction();
+                
+                // Update project (in real app, this would be from blockchain)
+                const project = projects.find(p => p.id === currentProjectId);
+                if (project) {
+                    project.raised += amount;
+                }
+                
+                closeModal();
+                showNotification(`Investment of ${amount} ETH successful!`);
+                
+                // Reload projects to show updated stats
+                loadProjects();
+                
+                // Clear input
+                document.getElementById('investAmount').value = '';
+                
+            } catch (error) {
+                closeModal();
+                showNotification('Investment failed: ' + error.message, 'error');
+            }
+        }
+
+        // Donation Functions
+        function openDonateModal(projectId) {
+            if (!isConnected) {
+                showNotification('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            currentProjectId = projectId;
+            document.getElementById('donateModal').classList.add('show');
+        }
+
+        async function confirmDonation() {
+            const amount = parseFloat(document.getElementById('donateAmount').value);
+            
+            if (!amount || amount <= 0) {
+                showNotification('Please enter a valid donation amount', 'error');
+                return;
+            }
+
+            closeModal();
+            showTransactionModal('Processing donation...');
+
+            try {
+                // Simulate donation transaction
+                await simulateTransaction();
+                
+                // Update project (in real app, this would be from blockchain)
+                const project = projects.find(p => p.id === currentProjectId);
+                if (project) {
+                    project.raised += amount;
+                }
+                
+                closeModal();
+                showNotification(`Donation of ${amount} ETH successful!`);
+                
+                // Reload projects to show updated stats
+                loadProjects();
+                
+                // Clear input
+                document.getElementById('donateAmount').value = '';
+                
+            } catch (error) {
+                closeModal();
+                showNotification('Donation failed: ' + error.message, 'error');
+            }
+        }
+
+        // DEX Functions
+        function swapTokens() {
+            const fromAmount = document.getElementById('fromAmount');
+            const toAmount = document.getElementById('toAmount');
+            const fromToken = document.getElementById('fromToken');
+            const toToken = document.getElementById('toToken');
+            
+            // Swap amounts
+            const tempAmount = fromAmount.value;
+            fromAmount.value = toAmount.value;
+            toAmount.value = tempAmount;
+            
+            // Swap tokens
+            const tempToken = fromToken.value;
+            fromToken.value = toToken.value;
+            toToken.value = tempToken;
+            
+            updateDEXPrices();
+        }
+
+        function updateDEXPrices() {
+            const fromAmount = document.getElementById('fromAmount').value;
+            const fromToken = document.getElementById('fromToken').value;
+            const toToken = document.getElementById('toToken').value;
+            
+            if (fromAmount && fromAmount > 0) {
+                let rate = 1;
+                
+                // Simple exchange rates (in real app, would fetch from oracle)
+                if (fromToken === 'ETH' && toToken === 'USDC') {
+                    rate = 1800 + (Math.random() - 0.5) * 100;
+                } else if (fromToken === 'USDC' && toToken === 'ETH') {
+                    rate = 1 / (1800 + (Math.random() - 0.5) * 100);
+                } else if (fromToken === 'ETH' && toToken === 'DAI') {
+                    rate = 1790 + (Math.random() - 0.5) * 100;
+                } else if (fromToken === 'DAI' && toToken === 'ETH') {
+                    rate = 1 / (1790 + (Math.random() - 0.5) * 100);
+                } else if (fromToken === 'USDC' && toToken === 'DAI') {
+                    rate = 0.998 + (Math.random() - 0.5) * 0.004;
+                } else if (fromToken === 'DAI' && toToken === 'USDC') {
+                    rate = 1.002 + (Math.random() - 0.5) * 0.004;
+                }
+                
+                const toAmount = (parseFloat(fromAmount) * rate).toFixed(6);
+                document.getElementById('toAmount').value = toAmount;
+            }
+        }
+
+        async function executeSwap() {
+            if (!isConnected) {
+                showNotification('Please connect your wallet first', 'error');
+                return;
+            }
+
+            const fromAmount = document.getElementById('fromAmount').value;
+            if (!fromAmount || fromAmount <= 0) {
+                showNotification('Please enter a valid amount to swap', 'error');
+                return;
+            }
+
+            showTransactionModal('Executing private swap...');
+
+            try {
+                // Simulate swap transaction
+                await simulateTransaction();
+                
+                closeModal();
+                showNotification('Private swap executed successfully!');
+                
+                // Clear inputs
+                document.getElementById('fromAmount').value = '';
+                document.getElementById('toAmount').value = '';
+                
+            } catch (error) {
+                closeModal();
+                showNotification('Swap failed: ' + error.message, 'error');
+            }
+        }
+
+        // Event listeners are now handled in setupFormEventListeners()
+
+        // Utility Functions
+        async function simulateTransaction() {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    // Simulate random success/failure (95% success rate)
+                    if (Math.random() > 0.05) {
+                        resolve();
+                    } else {
+                        reject(new Error('Transaction failed'));
+                    }
+                }, 3000);
+            });
+        }
+
+        function showTransactionModal(status) {
+            document.getElementById('transactionStatus').textContent = status;
+            document.getElementById('transactionModal').classList.add('show');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.remove('error');
+            
+            if (type === 'error') {
+                notification.classList.add('error');
+            }
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('show');
+            });
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

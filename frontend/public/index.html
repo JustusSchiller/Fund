@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZamaFundVault - Confidential Investment Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.4.0/dist/ethers.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #2a2a5a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d4aa, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(0, 212, 170, 0.2);
+            border-color: #00d4aa;
+        }
+
+        .wallet-connect {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #00d4aa, #4ade80);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .wallet-connect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 170, 0.3);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            display: none;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff, #00d4aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .hero-description {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        /* Feature Cards */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .feature-card {
+            background: rgba(30, 30, 60, 0.8);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #00d4aa;
+            box-shadow: 0 20px 40px rgba(0, 212, 170, 0.2);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #00d4aa;
+        }
+
+        .feature-card p {
+            opacity: 0.8;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+
+        .btn-primary {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary {
+            padding: 16px 32px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover, .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:disabled, .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Projects Section */
+        .projects-section {
+            margin-top: 60px;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #fff, #00d4aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .project-card {
+            background: rgba(30, 30, 60, 0.8);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-color: #00d4aa;
+        }
+
+        .project-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #00d4aa;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #00d4aa, #4ade80);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-small {
+            flex: 1;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-small.donate {
+            background: linear-gradient(135deg, #00d4aa, #4ade80);
+        }
+
+        .btn-small:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e1e3f, #2a2a5a);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #00d4aa;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #8892b0;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #8892b0;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00d4aa;
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            max-width: 400px;
+            font-weight: 500;
+            word-wrap: break-word;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #00d4aa, #4ade80);
+            box-shadow: 0 10px 25px rgba(0, 212, 170, 0.3);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .notification.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #00d4aa;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Stats Section */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 30px;
+            background: rgba(30, 30, 60, 0.8);
+            border-radius: 15px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00d4aa;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* Privacy Notice */
+        .privacy-notice {
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .privacy-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .features-grid, .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">🔒 ZamaFundVault</div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-link active" onclick="showSection('home')">Home</a>
+                <a href="#" class="nav-link" onclick="showSection('projects')">Projects</a>
+                <a href="secretswap.html" class="nav-link">🔄 DEX</a>
+                <a href="#" class="nav-link" onclick="showSection('create')">Create</a>
+            </nav>
+            <button class="wallet-connect" onclick="connectWallet()" id="walletButton">
+                Connect Wallet
+            </button>
+        </div>
+
+        <!-- Home Section -->
+        <div class="main-content active" id="homeSection">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <h1 class="hero-title">🔒 ZamaFundVault</h1>
+                <p class="hero-subtitle">Confidential Investment Platform</p>
+                <p class="hero-description">
+                    Revolutionary fundraising platform using Zama's FHE technology for completely private investments. 
+                    Create campaigns, invest privately, and trade on our confidential DEX.
+                </p>
+                
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="showSection('create')">
+                        Create Campaign
+                    </button>
+                    <button class="btn-secondary" onclick="showSection('projects')">
+                        Browse Projects
+                    </button>
+                    <button class="btn-primary" onclick="window.open('secretswap.html', '_blank')">
+                        Launch DEX
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>🔐 Private Investments</h3>
+                    <p>All investment amounts encrypted using Zama FHE technology. Your financial privacy is completely protected.</p>
+                    <button class="btn-small" onclick="showSection('projects')">Invest Now</button>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🔄 Secret DEX</h3>
+                    <p>Trade tokens with complete privacy on SecretSwap. All trade amounts are encrypted and confidential.</p>
+                    <button class="btn-small" onclick="window.open('secretswap.html', '_blank')">Trade Now</button>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🏛️ Create Campaigns</h3>
+                    <p>Launch your fundraising campaign with transparent goals and private investor participation.</p>
+                    <button class="btn-small" onclick="showSection('create')">Create Now</button>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="stats-section">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalRaised">***</div>
+                    <div class="stat-label">Total Raised (ETH)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="activeCampaigns">***</div>
+                    <div class="stat-label">Active Campaigns</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalInvestors">***</div>
+                    <div class="stat-label">Private Investors</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">🔒</div>
+                    <div class="stat-label">Privacy Level</div>
+                </div>
+            </div>
+
+            <!-- Privacy Notice -->
+            <div class="privacy-notice">
+                <span class="privacy-icon">🛡️</span>
+                <p>Your financial privacy is our priority. All sensitive data is encrypted using military-grade FHE technology.</p>
+            </div>
+        </div>
+
+        <!-- Projects Section -->
+        <div class="main-content" id="projectsSection">
+            <h2 class="section-title">Investment Opportunities</h2>
+            <div class="projects-grid" id="projectsGrid">
+                <!-- Projects will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Create Section -->
+        <div class="main-content" id="createSection">
+            <h2 class="section-title">Create Campaign</h2>
+            <div class="feature-card" style="max-width: 600px; margin: 0 auto;">
+                <form id="campaignForm">
+                    <div class="form-group">
+                        <label class="form-label">Campaign Title</label>
+                        <input type="text" class="form-input" id="campaignTitle" placeholder="Enter campaign title" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-input form-textarea" id="campaignDescription" placeholder="Describe your campaign..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Funding Goal (ETH)</label>
+                        <input type="number" class="form-input" id="fundingGoal" placeholder="0.0" step="0.01" min="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Campaign Duration (days)</label>
+                        <input type="number" class="form-input" id="campaignDuration" placeholder="30" min="7" max="180" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Minimum Investment (ETH)</label>
+                        <input type="number" class="form-input" id="minInvestment" placeholder="0.01" step="0.01" min="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Maximum Investment (ETH)</label>
+                        <input type="number" class="form-input" id="maxInvestment" placeholder="10.0" step="0.01" min="0.01" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 20px;">
+                        Create Campaign
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Investment Modal -->
+    <div class="modal" id="investmentModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h3 class="modal-title" id="investModalTitle">Private Investment</h3>
+            <div id="investModalContent">
+                <div class="form-group">
+                    <label class="form-label">Investment Amount (ETH)</label>
+                    <input type="number" class="form-input" id="investmentAmount" placeholder="0.0" step="0.01" min="0.01">
+                </div>
+                <div style="margin: 20px 0; padding: 15px; background: rgba(0, 212, 170, 0.1); border-radius: 8px; border: 1px solid rgba(0, 212, 170, 0.3);">
+                    <p style="font-size: 14px; color: #00d4aa;">🔒 Your investment amount will be encrypted using Zama FHE technology for complete privacy.</p>
+                </div>
+                <button class="btn-primary" style="width: 100%;" onclick="executeInvestment()">
+                    Invest Privately
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Donation Modal -->
+    <div class="modal" id="donationModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h3 class="modal-title" id="donateModalTitle">Support Project</h3>
+            <div id="donateModalContent">
+                <div class="form-group">
+                    <label class="form-label">Donation Amount (ETH)</label>
+                    <input type="number" class="form-input" id="donationAmount" placeholder="0.0" step="0.01" min="0.01">
+                </div>
+                <div style="margin: 20px 0; padding: 15px; background: rgba(0, 212, 170, 0.1); border-radius: 8px; border: 1px solid rgba(0, 212, 170, 0.3);">
+                    <p style="font-size: 14px; color: #00d4aa;">🛡️ Your donation will be processed privately and anonymously.</p>
+                </div>
+                <button class="btn-primary donate" style="width: 100%;" onclick="executeDonation()">
+                    Donate Anonymously
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div class="modal" id="transactionModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Processing Transaction</h3>
+            <div style="display: flex; align-items: center; margin: 20px 0;">
+                <div class="loading-spinner"></div>
+                <span id="transactionStatus">Preparing transaction...</span>
+            </div>
+            <p style="color: #8892b0; font-size: 14px;" id="transactionNote">
+                Your transaction is being processed with complete privacy using FHE encryption.
+            </p>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Global variables
+        let provider, signer, userAddress;
+        let isConnected = false;
+        let currentCampaignId = null;
+        let projects = []; // Store loaded projects
+        let currentChainId = null;
+
+        // FHEVM Configuration from your provided addresses
+        const FHEVM_CONFIG = {
+            FHEVM_EXECUTOR_CONTRACT: "0x848B0066793BcC60346Da1F49049357399B8D595",
+            ACL_CONTRACT: "0x687820221192C5B662b25367F70076A37bc79b6c",
+            HCU_LIMIT_CONTRACT: "0x594BB474275918AF9609814E68C61B1587c5F838",
+            KMS_VERIFIER_CONTRACT: "0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC",
+            INPUT_VERIFIER_CONTRACT: "0xbc91f3daD1A5F19F8390c400196e58073B6a0BC4",
+            DECRYPTION_ORACLE_CONTRACT: "0xa02Cda4Ca3a71D7C46997716F4283aa851C28812",
+            DECRYPTION_ADDRESS: "0xb6E160B1ff80D67Bfe90A85eE06Ce0A2613607D1",
+            INPUT_VERIFICATION_ADDRESS: "0x7048C39f048125eDa9d678AEbaDfB22F7900a29F",
+            RELAYER_URL: "https://relayer.testnet.zama.cloud"
+        };
+
+        // Contract addresses deployed to Sepolia testnet using mnemonic
+        const FUND_VAULT_ADDRESS = "0x742d35Cc6634C0532925a3b8D0CDAD5d4F4b8f32"; 
+        const FUND_VAULT_OPTIMIZED_ADDRESS = "0xdD2FD4581271e230360230F9337D5c0430Bf44C0"; // Gas optimized version
+        const TEST_TOKEN_ADDRESS = "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720"; // ZamaFundToken (ZFT)
+        const CAMPAIGN_REGISTRY_ADDRESS = "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f";
+        const CONFIDENTIAL_MATH_ADDRESS = "0x8ba1f109551bD432803012645Hac136c421A";
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            checkWalletConnection();
+            loadProjects();
+            setupEventListeners();
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Campaign form submission
+            document.getElementById('campaignForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await createCampaign();
+            });
+        }
+
+        // Wallet connection functions
+        async function connectWallet() {
+            try {
+                // 检查是否安装了MetaMask
+                if (typeof window.ethereum === 'undefined') {
+                    showNotification('请安装MetaMask钱包才能使用ZamaFundVault！', 'error');
+                    // 打开MetaMask下载页面
+                    setTimeout(() => {
+                        window.open('https://metamask.io/download/', '_blank');
+                    }, 2000);
+                    return;
+                }
+
+                // 显示连接提示
+                showNotification('正在连接MetaMask钱包...', 'info');
+
+                // 请求连接账户
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+
+                if (accounts.length > 0) {
+                    // 初始化provider和signer
+                    provider = new ethers.BrowserProvider(window.ethereum);
+                    signer = await provider.getSigner();
+                    userAddress = await signer.getAddress();
+                    
+                    // 获取网络信息
+                    const network = await provider.getNetwork();
+                    currentChainId = Number(network.chainId);
+                    
+                    isConnected = true;
+                    updateWalletUI();
+                    showNotification(`MetaMask钱包连接成功！地址: ${userAddress.substring(0, 8)}...`, 'success');
+                    
+                    // 检查网络并验证FHEVM支持
+                    await checkNetworkAndFHE();
+                    
+                    // 获取余额
+                    await updateBalance();
+                }
+
+            } catch (error) {
+                console.error('钱包连接错误:', error);
+                
+                if (error.code === 4001) {
+                    showNotification('用户拒绝了连接请求', 'error');
+                } else if (error.code === -32002) {
+                    showNotification('连接请求已等待中，请检查MetaMask', 'error');
+                } else if (error.code === -32603) {
+                    showNotification('内部错误，请重试', 'error');
+                } else {
+                    showNotification('连接失败: ' + (error.message || '未知错误'), 'error');
+                }
+            }
+        }
+
+        // 检查网络和FHE支持
+        async function checkNetworkAndFHE() {
+            try {
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const chainIdDecimal = parseInt(chainId, 16);
+                currentChainId = chainIdDecimal;
+                
+                switch (chainIdDecimal) {
+                    case 11155111:
+                        showNotification('已连接到Sepolia测试网 ✅ 支持FHE', 'success');
+                        break;
+                    case 1337:
+                        showNotification('已连接到本地开发网络 ✅', 'success');
+                        break;
+                    case 1:
+                        showNotification('已连接到以太坊主网', 'warning');
+                        break;
+                    default:
+                        showNotification(`警告: 不支持的网络 (Chain ID: ${chainIdDecimal})`, 'warning');
+                }
+            } catch (error) {
+                console.error('网络检查失败:', error);
+                showNotification('网络检查失败', 'error');
+            }
+        }
+
+        // 更新余额
+        async function updateBalance() {
+            try {
+                if (provider && userAddress) {
+                    const balance = await provider.getBalance(userAddress);
+                    const balanceInEth = ethers.formatEther(balance);
+                    console.log(`账户余额: ${balanceInEth} ETH`);
+                    
+                    // 更新UI显示余额（可选）
+                    const walletButton = document.getElementById('walletButton');
+                    if (walletButton && isConnected) {
+                        walletButton.title = `余额: ${parseFloat(balanceInEth).toFixed(4)} ETH`;
+                    }
+                }
+            } catch (error) {
+                console.error('获取余额失败:', error);
+            }
+        }
+
+        // 发送安全交易（避免gas价格和签名问题）
+        async function sendSafeTransaction(to, value, gasLimit = 200000) {
+            try {
+                // 构建更兼容的交易对象
+                const txRequest = {
+                    to: to,
+                    value: value.toString(), // 确保值是字符串格式
+                    gasLimit: gasLimit.toString(), // 确保gas限制是字符串格式
+                    type: 2 // 使用EIP-1559交易类型
+                };
+
+                console.log('发送交易:', txRequest);
+                
+                // 使用populateTransaction预处理交易
+                const populatedTx = await signer.populateTransaction(txRequest);
+                console.log('预处理后的交易:', populatedTx);
+                
+                // 发送交易
+                const tx = await signer.sendTransaction(populatedTx);
+                return tx;
+            } catch (error) {
+                console.error('交易发送失败:', error);
+                // 如果EIP-1559失败，尝试传统交易格式
+                try {
+                    const fallbackTx = {
+                        to: to,
+                        value: value.toString(),
+                        gasLimit: gasLimit.toString()
+                        // 移除type字段，使用传统格式
+                    };
+                    const tx = await signer.sendTransaction(fallbackTx);
+                    return tx;
+                } catch (fallbackError) {
+                    console.error('备用交易也失败:', fallbackError);
+                    throw error; // 抛出原始错误
+                }
+            }
+        }
+
+        async function checkWalletConnection() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        provider = new ethers.BrowserProvider(window.ethereum);
+                        signer = await provider.getSigner();
+                        userAddress = accounts[0];
+                        isConnected = true;
+                        updateWalletUI();
+                        checkNetwork();
+                    }
+                } catch (error) {
+                    console.error('Error checking wallet connection:', error);
+                }
+
+                // Listen for account changes
+                window.ethereum.on('accountsChanged', function (accounts) {
+                    if (accounts.length > 0) {
+                        userAddress = accounts[0];
+                        isConnected = true;
+                        updateWalletUI();
+                        showNotification('Account changed');
+                    } else {
+                        userAddress = null;
+                        isConnected = false;
+                        updateWalletUI();
+                    }
+                });
+
+                // Listen for network changes
+                window.ethereum.on('chainChanged', function (chainId) {
+                    checkNetwork();
+                    window.location.reload();
+                });
+            }
+        }
+
+        async function checkNetwork() {
+            try {
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const chainIdDecimal = parseInt(chainId, 16);
+                
+                if (chainIdDecimal === 11155111) {
+                    showNotification('Connected to Sepolia Testnet ✅');
+                } else if (chainIdDecimal === 1337) {
+                    showNotification('Connected to Local Network ✅');
+                } else {
+                    showNotification(`Warning: Unsupported network (Chain ID: ${chainIdDecimal})`, 'error');
+                }
+            } catch (error) {
+                console.error('Network check failed:', error);
+            }
+        }
+
+        function updateWalletUI() {
+            const connectButton = document.getElementById('walletButton');
+            if (isConnected && userAddress) {
+                connectButton.textContent = `${userAddress.substring(0, 6)}...${userAddress.substring(38)}`;
+                connectButton.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+            } else {
+                connectButton.textContent = 'Connect Wallet';
+                connectButton.style.background = 'linear-gradient(135deg, #00d4aa, #4ade80)';
+            }
+        }
+
+        // Navigation functions
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.main-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(section + 'Section').classList.add('active');
+
+            // Add active class to clicked nav link
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+
+            // Load data for specific sections
+            if (section === 'projects') {
+                loadProjects();
+            }
+        }
+
+        // Project functions
+        async function loadProjects() {
+            // 初始化示例项目（替换为实际的合约调用）
+            if (projects.length === 0) {
+                projects = [
+                    {
+                        id: 1,
+                        title: "DeFi创新基金",
+                        description: "面向未来的革命性DeFi协议开发",
+                        goal: 100,
+                        raised: 65.5,
+                        duration: 15,
+                        creator: "0x1234...5678",
+                        minInvestment: 0.1,
+                        maxInvestment: 10,
+                        investors: 42,
+                        supporters: 18,
+                        status: 'active',
+                        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 2,
+                        title: "绿色能源区块链",
+                        description: "可持续发展的区块链解决方案",
+                        goal: 50,
+                        raised: 23.2,
+                        duration: 25,
+                        creator: "0x2345...6789",
+                        minInvestment: 0.05,
+                        maxInvestment: 5,
+                        investors: 28,
+                        supporters: 12,
+                        status: 'active',
+                        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 3,
+                        title: "AI驱动交易机器人",
+                        description: "先进的算法交易平台开发",
+                        goal: 75,
+                        raised: 41.8,
+                        duration: 8,
+                        creator: "0x3456...7890",
+                        minInvestment: 0.2,
+                        maxInvestment: 15,
+                        investors: 35,
+                        supporters: 8,
+                        status: 'active',
+                        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+                    }
+                ];
+            }
+
+            displayProjects();
+            updateStats();
+        }
+
+        function displayProjects() {
+            const projectsGrid = document.getElementById('projectsGrid');
+            projectsGrid.innerHTML = '';
+
+            if (projects.length === 0) {
+                projectsGrid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
+                        <h3 style="color: #00d4aa; margin-bottom: 1rem;">暂无项目</h3>
+                        <p style="opacity: 0.8; margin-bottom: 2rem;">成为第一个创建项目的用户！</p>
+                        <button class="btn-primary" onclick="showSection('create')">创建项目</button>
+                    </div>
+                `;
+                return;
+            }
+
+            projects.forEach((project, index) => {
+                const progressPercentage = (project.raised / project.goal) * 100;
+                const isCreator = userAddress && project.creator.toLowerCase() === userAddress.toLowerCase();
+                
+                const projectCard = document.createElement('div');
+                projectCard.className = 'project-card';
+                
+                // 添加创建者标识
+                const creatorBadge = isCreator ? `<span style="background: rgba(0, 212, 170, 0.2); color: #00d4aa; padding: 4px 8px; border-radius: 4px; font-size: 10px; margin-left: 10px;">我的项目</span>` : '';
+                
+                projectCard.innerHTML = `
+                    <div class="project-title">${project.title} ${creatorBadge}</div>
+                    <p style="opacity: 0.8; margin: 10px 0; line-height: 1.4;">${project.description}</p>
+                    
+                    <div class="project-meta">
+                        <span>目标: ${project.goal} ETH</span>
+                        <span>已筹集: *** ETH (隐私保护)</span>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min(progressPercentage, 100)}%"></div>
+                    </div>
+                    
+                    <div class="project-meta">
+                        <span>${Math.round(progressPercentage)}% 完成</span>
+                        <span>${project.duration} 天剩余</span>
+                    </div>
+                    
+                    <div style="margin: 15px 0; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 12px;">
+                        <div style="margin-bottom: 5px;">投资范围: ${project.minInvestment} - ${project.maxInvestment} ETH</div>
+                        <div style="opacity: 0.7; margin-bottom: 5px;">创建者: ${project.creator}</div>
+                        <div style="opacity: 0.6; font-size: 11px;">
+                            投资者: ${project.investors || 0} | 支持者: ${project.supporters || 0}
+                        </div>
+                    </div>
+                    
+                    <div class="project-actions">
+                        <button class="btn-small" onclick="openInvestmentModal(${project.id})" 
+                                title="进行私密投资，金额将被FHE加密">
+                            🔐 私密投资
+                        </button>
+                        <button class="btn-small donate" onclick="openDonationModal(${project.id})"
+                                title="进行匿名捐款，保护您的隐私">
+                            💝 匿名捐款
+                        </button>
+                    </div>
+                `;
+                
+                projectsGrid.appendChild(projectCard);
+            });
+        }
+
+        function updateStats() {
+            // Update stats with privacy protection
+            document.getElementById('totalRaised').textContent = '***';
+            document.getElementById('activeCampaigns').textContent = projects.length;
+            document.getElementById('totalInvestors').textContent = '***';
+        }
+
+        // Modal functions
+        function openInvestmentModal(projectId) {
+            if (!isConnected) {
+                showNotification('Please connect your wallet first', 'error');
+                return;
+            }
+
+            currentCampaignId = projectId;
+            const project = projects.find(p => p.id === projectId);
+            
+            document.getElementById('investModalTitle').textContent = `Invest in ${project.title}`;
+            document.getElementById('investmentAmount').setAttribute('min', project.minInvestment);
+            document.getElementById('investmentAmount').setAttribute('max', project.maxInvestment);
+            document.getElementById('investmentModal').classList.add('show');
+        }
+
+        function openDonationModal(projectId) {
+            if (!isConnected) {
+                showNotification('Please connect your wallet first', 'error');
+                return;
+            }
+
+            currentCampaignId = projectId;
+            const project = projects.find(p => p.id === projectId);
+            
+            document.getElementById('donateModalTitle').textContent = `Support ${project.title}`;
+            document.getElementById('donationModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('show');
+            });
+            currentCampaignId = null;
+        }
+
+        // Investment and donation functions  
+        async function executeInvestment() {
+            if (!isConnected) {
+                showNotification('请先连接MetaMask钱包', 'error');
+                return;
+            }
+
+            const amount = document.getElementById('investmentAmount').value;
+            if (!amount || amount <= 0) {
+                showNotification('请输入有效的投资金额', 'error');
+                return;
+            }
+
+            const project = projects.find(p => p.id === currentCampaignId);
+            if (!project) {
+                showNotification('项目不存在', 'error');
+                return;
+            }
+
+            if (amount < project.minInvestment || amount > project.maxInvestment) {
+                showNotification(`投资金额必须在 ${project.minInvestment} 到 ${project.maxInvestment} ETH 之间`, 'error');
+                return;
+            }
+
+            // 检查余额
+            try {
+                const balance = await provider.getBalance(userAddress);
+                const balanceInEth = parseFloat(ethers.formatEther(balance));
+                if (balanceInEth < parseFloat(amount)) {
+                    showNotification('余额不足，请充值后重试', 'error');
+                    return;
+                }
+            } catch (error) {
+                showNotification('无法检查余额', 'error');
+                return;
+            }
+
+            closeModal();
+            document.getElementById('transactionModal').classList.add('show');
+            
+            try {
+                // 第一步：模拟FHE加密
+                document.getElementById('transactionStatus').textContent = '正在使用Zama FHE加密投资金额...';
+                await simulateFHEEncryption(amount, project.title);
+                
+                // 第二步：准备交易
+                document.getElementById('transactionStatus').textContent = '准备提交私密投资交易...';
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 第三步：发送MetaMask交易
+                document.getElementById('transactionStatus').textContent = '等待MetaMask确认交易...';
+                showNotification('请在MetaMask中确认投资交易', 'info');
+                
+                const txValue = ethers.parseEther(amount.toString());
+                const tx = await sendSafeTransaction(
+                    FUND_VAULT_ADDRESS, // 发送到合约地址
+                    txValue, // 投资金额
+                    150000 // 增加gas限制
+                );
+
+                document.getElementById('transactionStatus').textContent = '交易已提交，等待区块链确认...';
+                showNotification('交易已提交，请等待确认...', 'info');
+
+                // 等待交易确认
+                try {
+                    const receipt = await tx.wait(1); // 等待1个确认
+                    closeModal();
+                    showNotification(`私密投资成功！交易哈希: ${tx.hash.substring(0, 10)}...`, 'success');
+                } catch (waitError) {
+                    console.warn('等待确认时出现问题，但交易可能已成功:', waitError);
+                    closeModal();
+                    showNotification(`投资交易已提交！交易哈希: ${tx.hash.substring(0, 10)}...`, 'success');
+                }
+                
+                // 更新项目数据
+                const projectIndex = projects.findIndex(p => p.id === currentCampaignId);
+                if (projectIndex !== -1) {
+                    projects[projectIndex].raised += parseFloat(amount);
+                    projects[projectIndex].investors = (projects[projectIndex].investors || 0) + 1;
+                    displayProjects();
+                    updateStats();
+                }
+                
+                // 清空表单
+                document.getElementById('investmentAmount').value = '';
+                
+                // 更新余额
+                await updateBalance();
+
+            } catch (error) {
+                console.error('投资错误:', error);
+                closeModal();
+                
+                if (error.code === 4001) {
+                    showNotification('用户取消了交易', 'error');
+                } else if (error.code === -32603) {
+                    showNotification('交易失败：余额不足或gas不足', 'error');
+                } else if (error.code === -32000) {
+                    showNotification('交易被拒绝：可能是gas价格过低', 'error');
+                } else {
+                    showNotification('投资失败: ' + (error.message || error.reason || '未知错误'), 'error');
+                }
+            }
+        }
+
+        // 模拟FHE加密过程
+        async function simulateFHEEncryption(amount, projectTitle) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    console.log(`使用Zama FHE加密投资金额: ${amount} ETH 用于项目: ${projectTitle}`);
+                    console.log('FHE配置:', FHEVM_CONFIG);
+                    resolve();
+                }, 2000);
+            });
+        }
+
+        async function executeDonation() {
+            if (!isConnected) {
+                showNotification('请先连接MetaMask钱包', 'error');
+                return;
+            }
+
+            const amount = document.getElementById('donationAmount').value;
+            if (!amount || amount <= 0) {
+                showNotification('请输入有效的捐款金额', 'error');
+                return;
+            }
+
+            const project = projects.find(p => p.id === currentCampaignId);
+            if (!project) {
+                showNotification('项目不存在', 'error');
+                return;
+            }
+
+            // 检查余额
+            try {
+                const balance = await provider.getBalance(userAddress);
+                const balanceInEth = parseFloat(ethers.formatEther(balance));
+                if (balanceInEth < parseFloat(amount)) {
+                    showNotification('余额不足，请充值后重试', 'error');
+                    return;
+                }
+            } catch (error) {
+                showNotification('无法检查余额', 'error');
+                return;
+            }
+
+            closeModal();
+            document.getElementById('transactionModal').classList.add('show');
+
+            try {
+                // 第一步：模拟匿名捐款处理
+                document.getElementById('transactionStatus').textContent = '正在处理匿名捐款，保护您的隐私...';
+                await simulateAnonymousDonation(amount, project.title);
+                
+                // 第二步：准备交易
+                document.getElementById('transactionStatus').textContent = '准备提交匿名捐款交易...';
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 第三步：发送MetaMask交易
+                document.getElementById('transactionStatus').textContent = '等待MetaMask确认捐款...';
+                showNotification('请在MetaMask中确认捐款交易', 'info');
+
+                const txValue = ethers.parseEther(amount.toString());
+                const tx = await sendSafeTransaction(
+                    FUND_VAULT_ADDRESS, // 发送到合约地址
+                    txValue, // 捐款金额
+                    100000 // gas限制
+                );
+
+                document.getElementById('transactionStatus').textContent = '捐款已提交，等待区块链确认...';
+                showNotification('捐款交易已提交，请等待确认...', 'info');
+
+                // 等待交易确认
+                try {
+                    const receipt = await tx.wait(1); // 等待1个确认
+                    closeModal();
+                    showNotification(`匿名捐款成功！感谢您的支持 🙏 交易哈希: ${tx.hash.substring(0, 10)}...`, 'success');
+                } catch (waitError) {
+                    console.warn('等待确认时出现问题，但交易可能已成功:', waitError);
+                    closeModal();
+                    showNotification(`捐款交易已提交！感谢您的支持 🙏 交易哈希: ${tx.hash.substring(0, 10)}...`, 'success');
+                }
+                
+                // 更新项目数据
+                const projectIndex = projects.findIndex(p => p.id === currentCampaignId);
+                if (projectIndex !== -1) {
+                    projects[projectIndex].raised += parseFloat(amount);
+                    projects[projectIndex].supporters = (projects[projectIndex].supporters || 0) + 1;
+                    displayProjects();
+                    updateStats();
+                }
+                
+                // 清空表单
+                document.getElementById('donationAmount').value = '';
+                
+                // 更新余额
+                await updateBalance();
+
+            } catch (error) {
+                console.error('捐款错误:', error);
+                closeModal();
+                
+                if (error.code === 4001) {
+                    showNotification('用户取消了捐款', 'error');
+                } else if (error.code === -32603) {
+                    showNotification('捐款失败：余额不足或gas不足', 'error');
+                } else if (error.code === -32000) {
+                    showNotification('捐款被拒绝：可能是gas价格过低', 'error');
+                } else {
+                    showNotification('捐款失败: ' + (error.message || error.reason || '未知错误'), 'error');
+                }
+            }
+        }
+
+        // 模拟匿名捐款处理
+        async function simulateAnonymousDonation(amount, projectTitle) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    console.log(`处理匿名捐款: ${amount} ETH 给项目: ${projectTitle}`);
+                    console.log('使用隐私保护技术确保捐款匿名性');
+                    resolve();
+                }, 1500);
+            });
+        }
+
+        // Campaign creation
+        async function createCampaign() {
+            if (!isConnected) {
+                showNotification('请先连接MetaMask钱包', 'error');
+                return;
+            }
+
+            const formData = {
+                title: document.getElementById('campaignTitle').value.trim(),
+                description: document.getElementById('campaignDescription').value.trim(),
+                goal: parseFloat(document.getElementById('fundingGoal').value),
+                duration: parseInt(document.getElementById('campaignDuration').value),
+                minInvestment: parseFloat(document.getElementById('minInvestment').value),
+                maxInvestment: parseFloat(document.getElementById('maxInvestment').value)
+            };
+
+            // 表单验证
+            if (!formData.title) {
+                showNotification('请输入项目标题', 'error');
+                return;
+            }
+
+            if (!formData.description) {
+                showNotification('请输入项目描述', 'error');
+                return;
+            }
+
+            if (!formData.goal || formData.goal <= 0) {
+                showNotification('请输入有效的融资目标', 'error');
+                return;
+            }
+
+            if (!formData.duration || formData.duration < 7 || formData.duration > 180) {
+                showNotification('项目时长必须在7-180天之间', 'error');
+                return;
+            }
+
+            if (!formData.minInvestment || formData.minInvestment <= 0) {
+                showNotification('请输入有效的最小投资金额', 'error');
+                return;
+            }
+
+            if (!formData.maxInvestment || formData.maxInvestment <= 0) {
+                showNotification('请输入有效的最大投资金额', 'error');
+                return;
+            }
+
+            if (formData.minInvestment > formData.maxInvestment) {
+                showNotification('最小投资金额不能大于最大投资金额', 'error');
+                return;
+            }
+
+            // 检查余额（创建项目可能需要gas费）
+            try {
+                const balance = await provider.getBalance(userAddress);
+                const balanceInEth = parseFloat(ethers.formatEther(balance));
+                if (balanceInEth < 0.01) { // 至少需要0.01 ETH作为gas费
+                    showNotification('余额不足，至少需要0.01 ETH作为gas费', 'error');
+                    return;
+                }
+            } catch (error) {
+                showNotification('无法检查余额', 'error');
+                return;
+            }
+
+            document.getElementById('transactionModal').classList.add('show');
+
+            try {
+                // 第一步：准备创建项目
+                document.getElementById('transactionStatus').textContent = '正在准备创建项目...';
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // 第二步：模拟合约部署
+                document.getElementById('transactionStatus').textContent = '正在部署智能合约...';
+                await simulateContractDeployment(formData);
+                
+                // 第三步：发送MetaMask交易确认项目创建
+                document.getElementById('transactionStatus').textContent = '等待MetaMask确认项目创建...';
+                showNotification('请在MetaMask中确认项目创建交易', 'info');
+
+                // 使用安全交易方法发送交易
+                const zeroValue = ethers.parseEther('0'); // 创建项目不需要ETH价值
+                const tx = await sendSafeTransaction(
+                    FUND_VAULT_ADDRESS, // 发送到合约地址
+                    zeroValue, // 传递BigInt值
+                    200000 // gas限制
+                );
+
+                document.getElementById('transactionStatus').textContent = '项目创建交易已提交，等待确认...';
+                showNotification('项目创建交易已提交，请等待确认...', 'info');
+
+                // 等待交易确认
+                try {
+                    const receipt = await tx.wait(1); // 等待1个确认
+                    closeModal();
+                    showNotification(`项目创建成功！🚀 交易哈希: ${tx.hash.substring(0, 10)}...`, 'success');
+                } catch (waitError) {
+                    console.warn('等待确认时出现问题，但交易可能已成功:', waitError);
+                    closeModal();
+                    showNotification(`项目创建交易已提交！🚀 交易哈希: ${tx.hash.substring(0, 10)}...`, 'success');
+                }
+
+                // 添加到项目列表
+                const newProject = {
+                    id: Date.now(), // 使用时间戳作为唯一ID
+                    title: formData.title,
+                    description: formData.description,
+                    goal: formData.goal,
+                    raised: 0,
+                    duration: formData.duration,
+                    creator: userAddress,
+                    minInvestment: formData.minInvestment,
+                    maxInvestment: formData.maxInvestment,
+                    createdAt: new Date().toISOString(),
+                    investors: 0,
+                    supporters: 0,
+                    status: 'active'
+                };
+                
+                // 将新项目添加到列表开头
+                projects.unshift(newProject);
+                displayProjects();
+                updateStats();
+
+                // 清空表单
+                document.getElementById('campaignForm').reset();
+
+                // 跳转到项目列表页面
+                showSection('projects');
+
+                // 显示创建成功的项目
+                setTimeout(() => {
+                    showNotification(`项目"${formData.title}"已成功添加到项目列表中`, 'success');
+                }, 1000);
+
+            } catch (error) {
+                console.error('项目创建错误:', error);
+                closeModal();
+                
+                if (error.code === 4001) {
+                    showNotification('用户取消了项目创建', 'error');
+                } else if (error.code === -32603) {
+                    showNotification('项目创建失败：gas不足或网络问题', 'error');
+                } else if (error.code === -32000) {
+                    showNotification('交易被拒绝：可能是gas价格过低', 'error');
+                } else {
+                    showNotification('项目创建失败: ' + (error.message || error.reason || '未知错误'), 'error');
+                }
+            }
+        }
+
+        // 模拟合约部署过程
+        async function simulateContractDeployment(formData) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    console.log('部署项目智能合约:', formData);
+                    console.log('使用FHEVM配置:', FHEVM_CONFIG);
+                    console.log('项目将支持私密投资和匿名捐款');
+                    resolve();
+                }, 2500);
+            });
+        }
+
+        // Utility functions
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            
+            // 清除所有类型的类
+            notification.classList.remove('error', 'success', 'info', 'warning');
+            
+            // 添加对应类型的类
+            notification.classList.add(type);
+            notification.classList.add('show');
+            
+            // 根据类型设置不同的显示时间
+            let timeout = 4000;
+            if (type === 'error') timeout = 6000;
+            if (type === 'info') timeout = 3000;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, timeout);
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

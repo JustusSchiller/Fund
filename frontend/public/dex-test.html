@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEX 功能测试</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.4.0/dist/ethers.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .test-card {
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #444;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .success { background: #065f46; }
+        .error { background: #7f1d1d; }
+        .warning { background: #78350f; }
+        .info { background: #1e3a8a; }
+        button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #4338ca; }
+        input, select {
+            background: #374151;
+            border: 1px solid #6b7280;
+            border-radius: 5px;
+            padding: 8px;
+            color: white;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 ZamaFundVault DEX 功能测试</h1>
+    
+    <div class="test-card">
+        <h2>1. 钱包连接测试</h2>
+        <button onclick="testWalletConnection()">测试钱包连接</button>
+        <div id="walletStatus" class="status info">未连接</div>
+        <div id="walletDetails"></div>
+    </div>
+    
+    <div class="test-card">
+        <h2>2. ETH币对选择测试</h2>
+        <label>From Token:</label>
+        <select id="fromToken">
+            <option value="ETH">ETH</option>
+            <option value="WETH">WETH</option>
+            <option value="USDC">USDC</option>
+            <option value="USDT">USDT</option>
+            <option value="DAI">DAI</option>
+            <option value="WBTC">WBTC</option>
+        </select>
+        <br>
+        <label>To Token:</label>
+        <select id="toToken">
+            <option value="USDC">USDC</option>
+            <option value="ETH">ETH</option>
+            <option value="WETH">WETH</option>
+            <option value="USDT">USDT</option>
+            <option value="DAI">DAI</option>
+            <option value="WBTC">WBTC</option>
+        </select>
+        <br>
+        <label>Amount:</label>
+        <input type="number" id="tradeAmount" placeholder="0.0" step="0.001">
+        <div id="tokenPairStatus" class="status info">选择交易对以验证</div>
+    </div>
+    
+    <div class="test-card">
+        <h2>3. 买入功能测试</h2>
+        <button onclick="testBuyFunction()">测试买入 (MetaMask弹窗)</button>
+        <div id="buyStatus" class="status info">未测试</div>
+    </div>
+    
+    <div class="test-card">
+        <h2>4. 卖出功能测试</h2>
+        <button onclick="testSellFunction()">测试卖出 (MetaMask弹窗)</button>
+        <div id="sellStatus" class="status info">未测试</div>
+    </div>
+    
+    <div class="test-card">
+        <h2>5. 页面导航测试</h2>
+        <button onclick="window.open('index.html', '_blank')">测试主页导航</button>
+        <button onclick="window.open('secretswap.html', '_blank')">打开完整DEX页面</button>
+        <div id="navStatus" class="status info">点击按钮测试导航</div>
+    </div>
+
+    <script>
+        let provider, signer, userAddress;
+        let isConnected = false;
+        
+        // 测试钱包连接
+        async function testWalletConnection() {
+            const statusDiv = document.getElementById('walletStatus');
+            const detailsDiv = document.getElementById('walletDetails');
+            
+            try {
+                statusDiv.textContent = '正在连接...';
+                statusDiv.className = 'status warning';
+                
+                if (typeof window.ethereum === 'undefined') {
+                    statusDiv.textContent = '❌ 未安装MetaMask';
+                    statusDiv.className = 'status error';
+                    return;
+                }
+                
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                
+                if (accounts.length > 0) {
+                    provider = new ethers.BrowserProvider(window.ethereum);
+                    signer = await provider.getSigner();
+                    userAddress = await signer.getAddress();
+                    const network = await provider.getNetwork();
+                    const balance = await provider.getBalance(userAddress);
+                    
+                    isConnected = true;
+                    statusDiv.textContent = '✅ 钱包连接成功';
+                    statusDiv.className = 'status success';
+                    
+                    detailsDiv.innerHTML = `
+                        <strong>地址:</strong> ${userAddress}<br>
+                        <strong>网络:</strong> ${network.name} (${network.chainId})<br>
+                        <strong>余额:</strong> ${ethers.formatEther(balance)} ETH
+                    `;
+                }
+            } catch (error) {
+                statusDiv.textContent = '❌ 连接失败: ' + error.message;
+                statusDiv.className = 'status error';
+            }
+        }
+        
+        // 测试买入功能
+        async function testBuyFunction() {
+            const statusDiv = document.getElementById('buyStatus');
+            
+            if (!isConnected) {
+                statusDiv.textContent = '❌ 请先连接钱包';
+                statusDiv.className = 'status error';
+                return;
+            }
+            
+            const amount = document.getElementById('tradeAmount').value;
+            if (!amount || amount <= 0) {
+                statusDiv.textContent = '❌ 请输入有效金额';
+                statusDiv.className = 'status error';
+                return;
+            }
+            
+            try {
+                statusDiv.textContent = '⏳ 准备买入交易...';
+                statusDiv.className = 'status warning';
+                
+                const fromToken = document.getElementById('fromToken').value;
+                const toToken = document.getElementById('toToken').value;
+                
+                // 计算交易值
+                const swapValue = parseFloat(amount) * 0.1;
+                let txValue = '0';
+                if (fromToken === 'ETH' || fromToken === 'WETH') {
+                    txValue = ethers.parseEther(swapValue.toString()).toString();
+                }
+                
+                // 发送测试交易
+                const tx = await signer.sendTransaction({
+                    to: userAddress, // 发送给自己进行测试
+                    value: txValue,
+                    gasLimit: 100000
+                });
+                
+                statusDiv.textContent = '⏳ 等待交易确认...';
+                await tx.wait(1);
+                
+                statusDiv.textContent = `✅ 买入测试成功! ${fromToken} → ${toToken}`;
+                statusDiv.className = 'status success';
+                
+            } catch (error) {
+                if (error.code === 4001) {
+                    statusDiv.textContent = '⚠️ 用户取消了交易';
+                    statusDiv.className = 'status warning';
+                } else {
+                    statusDiv.textContent = '❌ 买入测试失败: ' + error.message;
+                    statusDiv.className = 'status error';
+                }
+            }
+        }
+        
+        // 测试卖出功能
+        async function testSellFunction() {
+            const statusDiv = document.getElementById('sellStatus');
+            
+            if (!isConnected) {
+                statusDiv.textContent = '❌ 请先连接钱包';
+                statusDiv.className = 'status error';
+                return;
+            }
+            
+            const amount = document.getElementById('tradeAmount').value;
+            if (!amount || amount <= 0) {
+                statusDiv.textContent = '❌ 请输入有效金额';
+                statusDiv.className = 'status error';
+                return;
+            }
+            
+            try {
+                statusDiv.textContent = '⏳ 准备卖出交易...';
+                statusDiv.className = 'status warning';
+                
+                const fromToken = document.getElementById('fromToken').value;
+                const toToken = document.getElementById('toToken').value;
+                
+                // 计算交易值 (卖出手续费更低)
+                const swapValue = parseFloat(amount) * 0.05;
+                let txValue = '0';
+                if (fromToken === 'ETH' || fromToken === 'WETH') {
+                    txValue = ethers.parseEther(swapValue.toString()).toString();
+                }
+                
+                // 发送测试交易
+                const tx = await signer.sendTransaction({
+                    to: userAddress, // 发送给自己进行测试
+                    value: txValue,
+                    gasLimit: 100000
+                });
+                
+                statusDiv.textContent = '⏳ 等待交易确认...';
+                await tx.wait(1);
+                
+                statusDiv.textContent = `✅ 卖出测试成功! ${fromToken} → ${toToken}`;
+                statusDiv.className = 'status success';
+                
+            } catch (error) {
+                if (error.code === 4001) {
+                    statusDiv.textContent = '⚠️ 用户取消了交易';
+                    statusDiv.className = 'status warning';
+                } else {
+                    statusDiv.textContent = '❌ 卖出测试失败: ' + error.message;
+                    statusDiv.className = 'status error';
+                }
+            }
+        }
+        
+        // 验证币对选择
+        function validateTokenPair() {
+            const fromToken = document.getElementById('fromToken').value;
+            const toToken = document.getElementById('toToken').value;
+            const statusDiv = document.getElementById('tokenPairStatus');
+            
+            if (fromToken === toToken) {
+                statusDiv.textContent = '❌ 买入和卖出代币不能相同';
+                statusDiv.className = 'status error';
+            } else {
+                statusDiv.textContent = `✅ 交易对有效: ${fromToken} → ${toToken}`;
+                statusDiv.className = 'status success';
+            }
+        }
+        
+        // 监听币对变化
+        document.getElementById('fromToken').addEventListener('change', validateTokenPair);
+        document.getElementById('toToken').addEventListener('change', validateTokenPair);
+        
+        // 初始验证
+        document.addEventListener('DOMContentLoaded', validateTokenPair);
+    </script>
+</body>
+</html>

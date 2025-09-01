@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet Connection Test - ZamaFundVault</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #2a2a5a 100%);
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00d4aa;
+            text-align: center;
+        }
+        .test-section {
+            background: rgba(30, 30, 60, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        button {
+            background: linear-gradient(135deg, #00d4aa, #4ade80);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            font-weight: 600;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 170, 0.3);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        .status.success { background: rgba(0, 212, 170, 0.2); border: 1px solid #00d4aa; }
+        .status.error { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; }
+        .status.warning { background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; }
+        .info { background: rgba(99, 102, 241, 0.2); border: 1px solid #6366f1; }
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Wallet Connection Diagnostic</h1>
+        
+        <div class="test-section">
+            <h3>1. MetaMask Detection</h3>
+            <button onclick="checkMetaMask()">Check MetaMask</button>
+            <div id="metamask-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Account Connection</h3>
+            <button onclick="connectWallet()">Connect Wallet</button>
+            <div id="connection-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Network Information</h3>
+            <button onclick="checkNetwork()">Check Network</button>
+            <div id="network-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Account Details</h3>
+            <button onclick="getAccountInfo()">Get Account Info</button>
+            <div id="account-info"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. Browser Console</h3>
+            <p>Open browser developer tools (F12) and check the Console tab for any error messages.</p>
+        </div>
+
+        <div class="test-section">
+            <h3>6. Quick Actions</h3>
+            <button onclick="location.href='/'">Back to Home</button>
+            <button onclick="location.href='/secretswap.html'">Open SecretSwap</button>
+            <button onclick="installMetaMask()">Install MetaMask</button>
+        </div>
+    </div>
+
+    <script>
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function checkMetaMask() {
+            if (typeof window.ethereum !== 'undefined') {
+                if (window.ethereum.isMetaMask) {
+                    showStatus('metamask-status', '✅ MetaMask is installed and detected!', 'success');
+                } else {
+                    showStatus('metamask-status', '⚠️ Ethereum provider detected but may not be MetaMask', 'warning');
+                }
+                
+                // Show provider info
+                const providerInfo = `
+                    <pre>Provider Info:
+- isMetaMask: ${window.ethereum.isMetaMask || 'false'}
+- chainId: ${window.ethereum.chainId || 'unknown'}
+- selectedAddress: ${window.ethereum.selectedAddress || 'none'}
+- isConnected: ${window.ethereum.isConnected ? window.ethereum.isConnected() : 'unknown'}</pre>`;
+                
+                document.getElementById('metamask-status').innerHTML += providerInfo;
+            } else {
+                showStatus('metamask-status', '❌ MetaMask not detected. Please install MetaMask.', 'error');
+            }
+        }
+
+        async function connectWallet() {
+            try {
+                showStatus('connection-status', '🔄 Attempting to connect...', 'info');
+
+                if (typeof window.ethereum === 'undefined') {
+                    showStatus('connection-status', '❌ MetaMask not installed', 'error');
+                    return;
+                }
+
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+
+                if (accounts.length > 0) {
+                    const account = accounts[0];
+                    showStatus('connection-status', 
+                        `✅ Connected successfully!<br>Account: ${account}<br>Short: ${account.substring(0, 6)}...${account.substring(38)}`, 
+                        'success'
+                    );
+                } else {
+                    showStatus('connection-status', '❌ No accounts returned', 'error');
+                }
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                
+                let errorMessage = '❌ Connection failed: ';
+                if (error.code === 4001) {
+                    errorMessage += 'User rejected the request';
+                } else if (error.code === -32002) {
+                    errorMessage += 'Request already pending in MetaMask';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showStatus('connection-status', errorMessage, 'error');
+            }
+        }
+
+        async function checkNetwork() {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    showStatus('network-status', '❌ MetaMask not detected', 'error');
+                    return;
+                }
+
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const chainIdDecimal = parseInt(chainId, 16);
+
+                let networkName = 'Unknown';
+                let status = 'warning';
+                
+                switch (chainIdDecimal) {
+                    case 1:
+                        networkName = 'Ethereum Mainnet';
+                        status = 'info';
+                        break;
+                    case 11155111:
+                        networkName = 'Sepolia Testnet';
+                        status = 'success';
+                        break;
+                    case 1337:
+                        networkName = 'Local Development';
+                        status = 'success';
+                        break;
+                    default:
+                        networkName = `Unknown (ID: ${chainIdDecimal})`;
+                }
+
+                const networkInfo = `
+                    <div class="status ${status}">
+                        Network: ${networkName}<br>
+                        Chain ID: ${chainIdDecimal} (0x${chainId.slice(2)})
+                    </div>`;
+                
+                document.getElementById('network-status').innerHTML = networkInfo;
+
+            } catch (error) {
+                console.error('Network check error:', error);
+                showStatus('network-status', `❌ Network check failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function getAccountInfo() {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    showStatus('account-info', '❌ MetaMask not detected', 'error');
+                    return;
+                }
+
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                
+                if (accounts.length === 0) {
+                    showStatus('account-info', '⚠️ No accounts connected. Please connect your wallet first.', 'warning');
+                    return;
+                }
+
+                const account = accounts[0];
+                const balance = await window.ethereum.request({
+                    method: 'eth_getBalance',
+                    params: [account, 'latest']
+                });
+
+                const balanceInEth = parseInt(balance, 16) / Math.pow(10, 18);
+
+                const accountInfo = `
+                    <div class="status success">
+                        <strong>Account Information:</strong><br>
+                        Address: ${account}<br>
+                        Balance: ${balanceInEth.toFixed(4)} ETH<br>
+                        Balance (Wei): ${balance}
+                    </div>`;
+
+                document.getElementById('account-info').innerHTML = accountInfo;
+
+            } catch (error) {
+                console.error('Account info error:', error);
+                showStatus('account-info', `❌ Failed to get account info: ${error.message}`, 'error');
+            }
+        }
+
+        function installMetaMask() {
+            window.open('https://metamask.io/download/', '_blank');
+        }
+
+        // Auto-run diagnostics on page load
+        window.addEventListener('load', function() {
+            checkMetaMask();
+            setTimeout(checkNetwork, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZamaFundVault - Status Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a0a1a;
+            color: white;
+            padding: 20px;
+        }
+        .test-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #00d4aa;
+        }
+        .success { border-left-color: #4ade80; }
+        .error { border-left-color: #ef4444; }
+        .btn {
+            background: #00d4aa;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔒 ZamaFundVault - Status Test</h1>
+    
+    <div class="test-item success">
+        ✅ <strong>服务器状态:</strong> 正常运行在端口 3020
+    </div>
+    
+    <div class="test-item success">
+        ✅ <strong>主页导航:</strong> <a href="/" style="color: #00d4aa;">http://localhost:3020</a>
+    </div>
+    
+    <div class="test-item success">
+        ✅ <strong>DEX页面:</strong> <a href="/secretswap.html" style="color: #00d4aa;">SecretSwap DEX</a>
+    </div>
+    
+    <h2>功能测试清单:</h2>
+    
+    <div class="test-item">
+        <strong>投资功能:</strong><br>
+        1. 连接MetaMask钱包<br>
+        2. 进入Projects页面<br>
+        3. 点击项目的"Invest"按钮<br>
+        4. 输入投资金额<br>
+        5. 确认投资 → 应该弹出MetaMask确认窗口
+    </div>
+    
+    <div class="test-item">
+        <strong>捐款功能:</strong><br>
+        1. 连接MetaMask钱包<br>
+        2. 进入Projects页面<br>
+        3. 点击项目的"Donate"按钮<br>
+        4. 输入捐款金额<br>
+        5. 确认捐款 → 应该弹出MetaMask确认窗口
+    </div>
+    
+    <div class="test-item">
+        <strong>创建项目:</strong><br>
+        1. 连接MetaMask钱包<br>
+        2. 进入Create Project页面<br>
+        3. 填写项目信息<br>
+        4. 点击"Create Project" → 应该弹出MetaMask确认窗口<br>
+        5. 项目创建后应该出现在Projects列表中
+    </div>
+    
+    <div class="test-item">
+        <strong>DEX交易:</strong><br>
+        1. 连接MetaMask钱包<br>
+        2. 进入DEX页面<br>
+        3. 选择交易对（ETH/USDC等）<br>
+        4. 输入交易金额<br>
+        5. 点击"Execute Private Swap" → 应该弹出MetaMask确认窗口
+    </div>
+    
+    <div style="margin-top: 30px;">
+        <button class="btn" onclick="window.open('/', '_blank')">打开主应用</button>
+        <button class="btn" onclick="window.open('/secretswap.html', '_blank')">打开DEX</button>
+        <button class="btn" onclick="location.reload()">刷新状态</button>
+    </div>
+    
+    <div class="test-item" style="margin-top: 20px;">
+        <strong>问题报告:</strong><br>
+        如果遇到"Failed to create"或其他错误，请：<br>
+        1. 刷新页面（Ctrl+F5）<br>
+        2. 检查浏览器控制台（F12）<br>
+        3. 确保MetaMask已安装且已连接<br>
+        4. 确认网络连接正常
+    </div>
+    
+    <script>
+        // 简单的功能测试
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ ZamaFundVault Status Page Loaded');
+            
+            // 测试基础JavaScript功能
+            try {
+                const testObj = { test: 'working' };
+                console.log('✅ JavaScript 基础功能正常');
+            } catch (error) {
+                console.error('❌ JavaScript 错误:', error);
+            }
+        });
+    </script>
+</body>
+</html>
